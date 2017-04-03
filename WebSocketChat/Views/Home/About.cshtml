@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "About";
+    ViewBag.Title = "WebSocket";
 }
 <h3>Пример использования WebSocket</h3>
 <hr />
@@ -19,7 +19,9 @@
 </div>
 
 <hr />
-<div id='messages'></div>
+<div id='messages' class="pre-scrollable">
+
+</div>
 
 <script type="text/javascript">
     var $url = 'ws://' + window.location.hostname + ':' + window.location.port + '/ChatHandler.ashx';
@@ -36,8 +38,11 @@
 
         socket.onmessage = function (msg) {
             var $el = document.createElement('p');
+            var theFirstChild = $messages.firstChild;
             $el.innerHTML = msg.data;
-            $messages.appendChild($el);
+            $messages.insertBefore($el, theFirstChild);
+            var audio = new Audio('/Content/sms.mp3');
+            audio.autoplay = true;
         };
 
         socket.onclose = function (event) {
@@ -45,7 +50,17 @@
         };
 
         document.getElementById('send').onclick = function () {
-            socket.send('<strong>' + $user.value + ' : </strong>' + $txt.value);
+            Data = new Date();
+            Hour = Data.getHours();
+            Minutes = Data.getMinutes();
+            socket.send('<strong>' + $user.value + ' '+Hour+':'+Minutes+' - </strong>' + $txt.value);
             $txt.value = '';
+        };
+        document.getElementById('message').onkeypress = function (e) {
+
+            if (event.keyCode == 13) {
+                socket.send('<strong>' + $user.value + ' : </strong>' + $txt.value);
+                $txt.value = '';
+            }
         };
 </script>
