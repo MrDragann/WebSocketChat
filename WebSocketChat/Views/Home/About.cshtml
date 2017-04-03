@@ -1,7 +1,50 @@
 ﻿@{
     ViewBag.Title = "About";
 }
-<h2>@ViewBag.Title.</h2>
-<h3>@ViewBag.Message</h3>
+<h3>Пример использования WebSocket</h3>
+<hr />
+<div class="form-horizontal">
+    <div class="form-group col-md-4">
+        <label for="userName">Ваше имя:</label>
+        <input id="userName" class="form-control" />
+    </div>
 
-<p>Use this area to provide additional information.</p>
+    <div class="form-group col-md-5">
+        <label for="message">Ваше сообщение:</label>
+        <textarea id="message" class="form-control" rows="4" style="max-width: 350px;"></textarea>
+    </div>
+    <div>
+        <button type="button" class="btn btn-primary" id="send">Отправить</button>
+    </div>
+</div>
+
+<hr />
+<div id='messages'></div>
+
+<script type="text/javascript">
+        var socket,
+            $txt = document.getElementById('message'),
+            $user = document.getElementById('userName'),
+            $messages = document.getElementById('messages');
+
+        if (typeof (WebSocket) !== 'undefined') {
+            socket = new WebSocket("ws://localhost:57281/ChatHandler.ashx");
+        } else {
+            socket = new MozWebSocket("ws://localhost:57281/ChatHandler.ashx");
+        }
+
+        socket.onmessage = function (msg) {
+            var $el = document.createElement('p');
+            $el.innerHTML = msg.data;
+            $messages.appendChild($el);
+        };
+
+        socket.onclose = function (event) {
+            alert('Мы потеряли её. Пожалуйста, обновите страницу');
+        };
+
+        document.getElementById('send').onclick = function () {
+            socket.send('<strong>' + $user.value + ' : </strong>' + $txt.value);
+            $txt.value = '';
+        };
+</script>
